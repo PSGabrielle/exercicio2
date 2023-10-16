@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulários</title>
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
+
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main>
+        <h1>Inscreva-se:</h1>
+        <form>
+            <ul>
+                <li>
+                    <label for="nameSurname">Nome completo</label>
+                    <input type="text" id="nameSurname" name="nameSurname" minlength="3" maxlength="100"
+                        placeholder="Nome Sobrenome">
+                </li>
+                <li>
+                    <label for="age">Data de nascimento</label>
+                    <input type="date" id="age" name="age">
+                </li>
+                <li>
+                    <label for="telNumber">Telefone</label>
+                    <input type="tel" id="telNumber" name="telNumber" placeholder="(00) 0 0000-0000">
+                </li>
+                <li>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="seu@email.com">
+                </li>
+                <li>
+                    <label for="gender">Gênero</label>
+                    <select name="gender" id="gender">
+                        <option value="">Selecione...</option>
+                        <option value="Feminino">Feminino</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </li>
+            </ul>
+            <div class="bt">
+                <button type="reset">Limpar</button>
+                <button type="submit" onclick="postForm()">Enviar</button>
+                <button type="button" onclick="getForm()">Listar</button>
+            </div>
+        </form>
+
+        <table id="userTable">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Data de nascimento</th>
+                    <th>Telefone</th>
+                    <th>Email</th>
+                    <th>Gênero</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </main>
+
+    <script>
+        function postForm() {
+            try {
+                // armazenar os valores dos inputs puxados pelo id
+                const formData = {
+                    nameSurname: document.getElementById("nameSurname").value,
+                    age: document.getElementById("age").value,
+                    telNumber: document.getElementById("telNumber").value,
+                    email: document.getElementById("email").value,
+                    gender: document.getElementById("gender").value
+                };
+
+                // fetch para enviar os dados atraves do metodo post, headers com tipo de conteudo e body para tratamento de dados json
+                const response = fetch("https://crudcrud.com/api/3e45c1942d284282986a5575055a2390/users", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                // verificação do resultado, sucesso ou erro
+                const result = response.json();
+
+                console.log("Success:", result);
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        // função para puxar os dados com metodo get, headers com tipo de conteudo
+        function getForm() {
+            fetch("https://crudcrud.com/api/3e45c1942d284282986a5575055a2390/users", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+
+            // verificação da resposta do servidor, se diferente de ok = erro, se não = success
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Success:", data);
+
+                    // estruturação da tabela
+                    const table = document.getElementById("userTable");
+                    const tbody = table.querySelector("tbody");
+                    tbody.innerHTML = '';
+
+                    // para cada "inscrição" inserir uma nova linha
+                    data.forEach(user => {
+                        const { nameSurname, age, telNumber, email, gender } = user;
+                        const row = tbody.insertRow();
+
+                        // para cada linha inserir celulas e seus valores
+                        [nameSurname, age, telNumber, email, gender].forEach(value => {
+                            const cell = row.insertCell();
+                            cell.innerHTML = value;
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+        }
+    </script>
+
+</body>
+
+</html>
